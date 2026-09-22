@@ -1,0 +1,43 @@
+{
+  "name": "@agentbadge/mcp",
+  "version": "0.1.9",
+  "description": "MCP server and tools for AgentBadge",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "AgentBadge",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "hedera",
+    "agent",
+    "tools"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc && esbuild dist/index.js --bundle --minify --format=esm --platform=node --outfile=dist/index.min.js --allow-overwrite --external:@agentbadge/hedera-core --external:@agentbadge/passport --external:@modelcontextprotocol/sdk --external:zod && mv dist/index.min.js dist/index.js",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run --run"
+  },
+  "dependencies": {
+    "@agentbadge/hedera-core": "file:../hedera-core",
+    "@agentbadge/passport": "file:../passport",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.14",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.9.0",
+    "vitest": "^2.0.0"
+  }
+}

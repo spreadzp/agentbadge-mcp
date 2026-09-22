@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+graphify-out/
+*.log
+.env
+.env.local
