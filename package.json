@@ -1,6 +1,6 @@
 {
   "name": "@agentbadge/mcp",
-  "version": "0.1.9",
+  "version": "0.2.1",
   "description": "MCP server and tools for AgentBadge",
   "type": "module",
   "main": "dist/index.js",
@@ -29,8 +29,8 @@
     "test": "vitest run --run"
   },
   "dependencies": {
-    "@agentbadge/hedera-core": "file:../hedera-core",
-    "@agentbadge/passport": "file:../passport",
+    "@agentbadge/hedera-core": "^0.2.1",
+    "@agentbadge/passport": "^0.2.2",
     "@modelcontextprotocol/sdk": "^1.12.0",
     "zod": "^4.0.0"
   },
