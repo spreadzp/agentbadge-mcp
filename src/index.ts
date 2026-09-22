@@ -76,6 +76,12 @@ export {
   type BstockEvent,
   type BstockHistoryPoint,
 } from "./tools/bstock.tools";
+// Telegram subscription tools — injected subscription store (141-10).
+export {
+  registerBstockTelegramTools,
+  type BstockTelegramToolDeps,
+  type TelegramSubscriptionStore,
+} from "./tools/bstock-telegram.tools";
 
 // Convenience: register all package tools into a namespace (or global if no ns)
 import { registerPassportTools } from "./tools/passport.tools";
