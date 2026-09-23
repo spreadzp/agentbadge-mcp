@@ -48,6 +48,8 @@ export interface BstockDeltaView {
   stale: boolean;
   inAlert: boolean;
   lastUpdateMs: number;
+  /** Top-of-book depth (bidSize+askSize) — liquidity proxy. */
+  bookDepth?: number | null;
 }
 
 export interface BstockEvent {
@@ -102,14 +104,63 @@ export function registerBstockTools(
 
   r.registerTool(
     "list_deltas",
-    "List all tracked bStock tickers with delta%, sorted by |delta| descending.",
-    {},
-    async () => {
-      const list = engine
-        .listDeltas()
-        .sort(
+    "List tracked bStock tickers with delta%. Optional filters: " +
+      "minDeltaPct/maxDeltaPct bound |delta%|, sort=delta|liquidity " +
+      "(liquidity = top-of-book depth desc, surfaces the big tickers), " +
+      "limit caps the list.",
+    {
+      minDeltaPct: z
+        .number()
+        .optional()
+        .describe("Only |deltaPct| >= this (e.g. 1 = movers over 1%)"),
+      maxDeltaPct: z
+        .number()
+        .optional()
+        .describe("Only |deltaPct| <= this (e.g. 5 = within 5%)"),
+      sort: z
+        .enum(["delta", "liquidity"])
+        .optional()
+        .describe("delta=|delta%| desc (default); liquidity=book depth desc"),
+      limit: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe("Return at most N rows"),
+    },
+    async (args: Record<string, unknown>) => {
+      const parsed = z
+        .object({
+          minDeltaPct: z.number().optional(),
+          maxDeltaPct: z.number().optional(),
+          sort: z.enum(["delta", "liquidity"]).optional(),
+          limit: z.number().int().positive().optional(),
+        })
+        .safeParse(args);
+      if (!parsed.success) return validationError(parsed.error.message);
+      const { minDeltaPct, maxDeltaPct, sort, limit } = parsed.data;
+
+      let list = engine.listDeltas();
+      if (minDeltaPct !== undefined) {
+        list = list.filter(
+          (d) => d.deltaPct !== null && Math.abs(d.deltaPct) >= minDeltaPct,
+        );
+      }
+      if (maxDeltaPct !== undefined) {
+        list = list.filter(
+          (d) => d.deltaPct !== null && Math.abs(d.deltaPct) <= maxDeltaPct,
+        );
+      }
+      if (sort === "liquidity") {
+        list = [...list].sort(
+          (a, b) => (b.bookDepth ?? 0) - (a.bookDepth ?? 0),
+        );
+      } else {
+        list = [...list].sort(
           (a, b) => Math.abs(b.deltaPct ?? 0) - Math.abs(a.deltaPct ?? 0),
         );
+      }
+      if (limit !== undefined) list = list.slice(0, limit);
       return ok(list);
     },
   );

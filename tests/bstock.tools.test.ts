@@ -30,19 +30,19 @@ function makeEngine(): BstockEngineLike {
         symbol: "AAPLB", underlying: "AAPL", multiplier: 1,
         bStockPrice: 182.5, underlyingPrice: 181.2,
         deltaPct: 0.7174, phase: "O", stale: false, inAlert: true,
-        lastUpdateMs: 1_000_000,
+        lastUpdateMs: 1_000_000, bookDepth: 5000,
       },
       {
         symbol: "NVDAB", underlying: "NVDA", multiplier: 1.00077822,
         bStockPrice: 951, underlyingPrice: 950,
         deltaPct: -1.2, phase: "POST", stale: false, inAlert: true,
-        lastUpdateMs: 1_000_000,
+        lastUpdateMs: 1_000_000, bookDepth: 9000,
       },
       {
         symbol: "TSLAB", underlying: "TSLA", multiplier: 1,
         bStockPrice: 250, underlyingPrice: 250.1,
         deltaPct: -0.04, phase: "O", stale: true, inAlert: false,
-        lastUpdateMs: 900_000,
+        lastUpdateMs: 900_000, bookDepth: 100,
       },
     ],
     getEvents: () => [
@@ -122,6 +122,37 @@ describe("list_deltas", () => {
       "AAPLB",
       "TSLAB",
     ]);
+  });
+
+  it("minDeltaPct keeps only movers above the bound", async () => {
+    const res = await call("list_deltas", { minDeltaPct: 1 });
+    const data = parse(res);
+    expect(data.map((d: { symbol: string }) => d.symbol)).toEqual(["NVDAB"]);
+  });
+
+  it("maxDeltaPct keeps only deltas within the bound", async () => {
+    const res = await call("list_deltas", { maxDeltaPct: 1 });
+    const data = parse(res);
+    expect(data.map((d: { symbol: string }) => d.symbol)).toEqual([
+      "AAPLB",
+      "TSLAB",
+    ]);
+  });
+
+  it("sort=liquidity orders by book depth desc", async () => {
+    const res = await call("list_deltas", { sort: "liquidity" });
+    const data = parse(res);
+    expect(data.map((d: { symbol: string }) => d.symbol)).toEqual([
+      "NVDAB",
+      "AAPLB",
+      "TSLAB",
+    ]);
+  });
+
+  it("limit caps the result count", async () => {
+    const res = await call("list_deltas", { limit: 2 });
+    const data = parse(res);
+    expect(data).toHaveLength(2);
   });
 });
 
