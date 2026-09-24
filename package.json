@@ -1,6 +1,6 @@
 {
   "name": "@agentbadge/mcp",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "MCP server and tools for AgentBadge",
   "type": "module",
   "main": "dist/index.js",
@@ -39,5 +39,9 @@
     "esbuild": "^0.21.0",
     "typescript": "^5.9.0",
     "vitest": "^2.0.0"
+  },
+  "mcpName": "io.github.spreadzp/agentbadge",
+  "bin": {
+    "agentbadge-mcp": "dist/entry.js"
   }
 }
