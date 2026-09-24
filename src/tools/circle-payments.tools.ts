@@ -28,20 +28,12 @@ import type {
   BalanceLookup,
   PaymentStatusLookup,
   PaymentHistory,
+  IdentityLookupResult,
 } from "@agentbadge/circle-payments";
 
-/**
- * TODO(SLICE-150-2): moved to @agentbadge/circle-payments
- * (src/identity.ts, next to the identity extension). Local copy until
- * then — keep in sync with server routes/identity.ts.
- */
-export interface IdentityLookupResult {
-  passportTokenId: string;
-  readinessScore?: number;
-  mintTx?: string;
-  issuedAt?: string;
-  chain?: string;
-}
+// Re-exported for consumers (server wiring) — canonical definition lives
+// in @agentbadge/circle-payments/src/identity.ts (SLICE-150-2, D3).
+export type { IdentityLookupResult };
 
 function getRegistry(ns?: NamespaceRegistry) {
   return ns ?? getNamespace("all")!;
