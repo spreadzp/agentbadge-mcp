@@ -27,6 +27,11 @@ export interface ToolListing {
   inputSchema: Record<string, unknown>;
 }
 
+const SERVER_INSTRUCTIONS =
+  "AgentBadge MCP — agent-readiness scanning, on-chain passport NFTs (Hedera/EVM), " +
+  "agent discovery directory, marketplace tools, audit trail and x402-paid scan packs. " +
+  "Docs: https://agentbadge.xyz — 70 tools across passport, discovery, marketplace, audit, bstock namespaces.";
+
 // ─── NamespaceRegistry ───────────────────────────────────────────
 
 export class NamespaceRegistry {
@@ -35,7 +40,7 @@ export class NamespaceRegistry {
   private httpTransport: WebStandardStreamableHTTPServerTransport | null = null;
 
   constructor(private name: string, private version = "0.1.0") {
-    this.mcpServer = new McpServer({ name, version });
+    this.mcpServer = new McpServer({ name, version }, { instructions: SERVER_INSTRUCTIONS });
   }
 
   registerTool(
@@ -120,10 +125,10 @@ export class NamespaceRegistry {
     }
     this.httpTransport = null;
 
-    this.mcpServer = new McpServer({
-      name: this.name,
-      version: this.version,
-    });
+    this.mcpServer = new McpServer(
+      { name: this.name, version: this.version },
+      { instructions: SERVER_INSTRUCTIONS },
+    );
 
     for (const [name, entry] of this.toolRegistry) {
       try {
