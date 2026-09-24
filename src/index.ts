@@ -82,6 +82,38 @@ export {
   type BstockTelegramToolDeps,
   type TelegramSubscriptionStore,
 } from "./tools/bstock-telegram.tools";
+// Circle/Arc payment tools — injected config via setXxxToolConfig,
+// registered by the server wiring layer (all + market namespaces),
+// NOT via registerAllTools (EPIC-150, D4). Flag-gated by
+// CIRCLE_PAYMENTS_ENABLED on the server.
+export {
+  registerCirclePayTools,
+  setCirclePayToolConfig,
+  circlePayHandler,
+  type CirclePayToolConfig,
+  registerCircleWalletBalanceTools,
+  setCircleWalletBalanceToolConfig,
+  circleWalletBalanceHandler,
+  type CircleWalletBalanceToolConfig,
+  registerPaymentStatusTools,
+  setPaymentStatusToolConfig,
+  paymentStatusHandler,
+  type PaymentStatusToolConfig,
+  registerPaymentHistoryTools,
+  setPaymentHistoryToolConfig,
+  paymentHistoryHandler,
+  type PaymentHistoryToolConfig,
+  registerSupportedNetworksTools,
+  setSupportedNetworksToolConfig,
+  supportedNetworksHandler,
+  type SupportedNetworksToolConfig,
+  type CircleCapabilityFlags,
+  registerAgentIdentityTools,
+  setAgentIdentityToolConfig,
+  agentIdentityHandler,
+  type AgentIdentityToolConfig,
+  type IdentityLookupResult,
+} from "./tools/circle-payments.tools";
 
 // Convenience: register all package tools into a namespace (or global if no ns)
 import { registerPassportTools } from "./tools/passport.tools";
