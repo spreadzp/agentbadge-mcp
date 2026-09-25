@@ -30,7 +30,7 @@ export interface ToolListing {
 const SERVER_INSTRUCTIONS =
   "AgentBadge MCP — agent-readiness scanning, on-chain passport NFTs (Hedera/EVM), " +
   "agent discovery directory, marketplace tools, audit trail and x402-paid scan packs. " +
-  "Docs: https://agentbadge.xyz — 70 tools across passport, discovery, marketplace, audit, bstock namespaces.";
+  "Docs: https://agentbadge.xyz — 52 tools across passport, discovery, marketplace, audit, bstock, circle-payments namespaces.";
 
 // ─── NamespaceRegistry ───────────────────────────────────────────
 

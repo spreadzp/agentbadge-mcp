@@ -47,7 +47,7 @@ Remote HTTP endpoint (no install):
 
 ## Tools
 
-70 tools across 12 namespaces.
+52 tools across 13 namespaces.
 
 ### `passport` — Agent Passport NFTs (Hedera)
 
@@ -164,6 +164,19 @@ Delta tracking between Binance bStock tokens and underlying equities.
 | `subscribe_telegram` | Subscribe a Telegram username to bStock delta alerts. User must `/start` the bot first (DM model). |
 | `unsubscribe_telegram` | Unsubscribe the calling agent's Telegram alerts. |
 | `get_subscription_status` | Show the calling agent's Telegram subscription status. |
+
+### `circle-payments` — Circle Nanopayments
+
+Server-hosted only — registered when `CIRCLE_PAYMENTS_ENABLED` is set on the host (not part of `registerAllTools`; stdio installs do not expose these).
+
+| Tool | Description |
+|---|---|
+| `circle_pay` | Inbound Circle nanopayments helper — get payment requirements (`accepts[]`) for a payment-gated URL, or verify a base64 payment-signature payload. Never executes outbound payments or settles. |
+| `circle_wallet_balance` | [OPS] Seller wallet USDC + Circle Gateway balances per enabled chain. Optional chain filter. Read-only. |
+| `payment_status` | Normalized payment status by ref — gateway transfer UUID, tx hash, or ledger id. Read-only. |
+| `payment_history` | [OPS] Recent settled payments merged with failure ledger entries, newest first. Read-only. |
+| `supported_networks` | Capability matrix — `accepts[]` requirements plus live per-flag state (gateway, arc, identity, escrow). |
+| `agent_identity` | AgentBadge passport identity for an EVM address — passportTokenId, readinessScore, mintTx, issuedAt, chain. |
 
 ## Programmatic usage
 
