@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.spreadzp/agentbadge",
   "description": "AgentBadge MCP — agent-readiness scan, passport, discovery, marketplace and circle-payments tools",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "title": "AgentBadge",
   "websiteUrl": "https://agentbadge.xyz",
   "repository": {
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "identifier": "@agentbadge/mcp",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "transport": {
         "type": "stdio"
       }
