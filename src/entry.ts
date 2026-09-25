@@ -5,7 +5,7 @@ import {
   getNamespace,
   registerAllTools,
   type NamespaceRegistry,
-} from "./index";
+} from "./index.js";
 import { logger } from "@agentbadge/passport";
 
 const namespace = process.env.MCP_NAMESPACE ?? process.argv[2] ?? "all";
