@@ -178,6 +178,68 @@ Server-hosted only — registered when `CIRCLE_PAYMENTS_ENABLED` is set on the h
 | `supported_networks` | Capability matrix — `accepts[]` requirements plus live per-flag state (gateway, arc, identity, escrow). |
 | `agent_identity` | AgentBadge passport identity for an EVM address — passportTokenId, readinessScore, mintTx, issuedAt, chain. |
 
+## Arc examples
+
+USDC nanopayments and on-chain agent identity on [Arc](https://arc.network) (`eip155:5042002`).
+
+AgentBadge contracts on Arc:
+
+| Contract | Address |
+|---|---|
+| AgentPassportNFT | `0xd226824e66e6aac7104579840506e268886a8169` |
+| AccessPassNFT | `0x68ca4d1a9ff24f86328f2fb3a30d81e503d367f5` |
+| AgentEventLog | `0x1bb6A87D18cbd4285b4d383F88f10a1Ed01B4700` |
+| MarketplacePassNFT | `0xf8756ce4400c76f1c31b72216c391e1c46cc2c03` |
+
+The platform DID `did:web:agentbadge.xyz` links to its Arc registry entry via `alsoKnownAs: eip155:5042002:0x8004A169…` — verifiable at `https://agentbadge.xyz/.well-known/did.json` and through the Universal Resolver.
+
+### 1. Discover what's payable on Arc
+
+```json
+// tool: supported_networks
+{ }
+// → { accepts: [...], flags: { gateway: true, arc: true, identity: true, ... } }
+```
+
+### 2. Get payment requirements for a gated resource
+
+```json
+// tool: circle_pay
+{ "url": "https://agentbadge.xyz/api/paid/scan-report" }
+// → { accepts: [{ scheme: "circle-nanopayment", network: "arc", asset: "USDC", amount: "...", payTo: "0x…" }] }
+```
+
+`circle_pay` never executes or settles outbound payments — it returns requirements or verifies a payment-signature payload. The caller signs and submits on Arc itself.
+
+### 3. Check an agent's on-chain identity by EVM address
+
+```json
+// tool: agent_identity
+{ "address": "0xcdd23d104AA4C10DE65F4DD0571eDfeC0458699d" }
+// → { passportTokenId: "…", readinessScore: N, mintTx: "0x…", chain: "eip155:5042002" }
+```
+
+### 4. Track a payment end-to-end
+
+```json
+// tool: payment_status
+{ "ref": "0x<arc-tx-hash>" }            // or gateway transfer UUID / ledger id
+// → { status: "settled", txHash: "0x…", amount: "…", asset: "USDC" }
+
+// tool: payment_history   (ops, read-only)
+{ "limit": 20 }
+```
+
+### 5. Seller-side balance check
+
+```json
+// tool: circle_wallet_balance   (ops, read-only)
+{ "chain": "arc" }
+// → { usdc: "…", gatewayBalance: "…" }
+```
+
+> Circle-payments tools are exposed only when the host sets `CIRCLE_PAYMENTS_ENABLED` — the hosted endpoint at `https://agentbadge.xyz/mcp` has them; a bare `npx` stdio install does not.
+
 ## Programmatic usage
 
 ```ts

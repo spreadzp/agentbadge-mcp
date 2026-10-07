@@ -1,6 +1,6 @@
 {
   "name": "@agentbadge/mcp",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "MCP server and tools for AgentBadge [mcprush-claim-agentbadge-mcp-5e9cdf5c91d7cb6bf6f678d5]",
   "type": "module",
   "main": "dist/index.js",
