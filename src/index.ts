@@ -82,6 +82,19 @@ export {
   type BstockTelegramToolDeps,
   type TelegramSubscriptionStore,
 } from "./tools/bstock-telegram.tools";
+// FX-delta tools — injected DeltaEngine + subscription store,
+// registered by the server wiring layer (EPIC-191, SLICE-191-7).
+export {
+  registerFxDeltaTools,
+  type FxDeltaEngineLike,
+  type FxDeltaView,
+  type FxDeltaEvent,
+  type FxDeltaHistoryPoint,
+} from "./tools/fxdelta.tools";
+export {
+  registerFxDeltaTelegramTools,
+  type FxDeltaTelegramToolDeps,
+} from "./tools/fxdelta-telegram.tools";
 // Circle/Arc payment tools — injected config via setXxxToolConfig,
 // registered by the server wiring layer (all + market namespaces),
 // NOT via registerAllTools (EPIC-150, D4). Flag-gated by
