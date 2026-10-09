@@ -1,0 +1,35 @@
+{
+  "name": "agentbadge-mcp",
+  "version": "0.3.4",
+  "description": "AgentBadge MCP server — agent-readiness scanning, on-chain passport NFTs, agent discovery, marketplace, audit trail and x402-paid scan packs.",
+  "author": {
+    "name": "AgentBadge",
+    "url": "https://github.com/spreadzp/agentbadge-mcp"
+  },
+  "homepage": "https://agentbadge.xyz",
+  "repository": "https://github.com/spreadzp/agentbadge-mcp",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "agent-readiness",
+    "agent-identity",
+    "erc-8004",
+    "x402",
+    "ai-agents",
+    "agentic-ai"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "AgentBadge",
+    "shortDescription": "Agent-readiness scan, passport and discovery tools",
+    "longDescription": "AgentBadge MCP server exposes agent-readiness scanning, on-chain passport NFTs, agent discovery directory, marketplace access, audit trail and x402-paid scan packs. Use it to score how ready a service is for AI agents and to interact with the AgentBadge agent economy.",
+    "developerName": "AgentBadge",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://agentbadge.xyz"
+  }
+}
