@@ -1,5 +1,7 @@
 # @agentbadge/mcp
 
+[![HOL Guard](https://img.shields.io/endpoint?url=https%3A%2F%2Fhol.org%2Fapi%2Fregistry%2Fbadges%2Fplugin%3Fslug%3Dagentbadge%252Fagentbadge-mcp%26metric%3Dtrust)](https://hol.org/registry/plugins/agentbadge%2Fagentbadge-mcp)
+
 MCP (Model Context Protocol) server for **AgentBadge** — agent-readiness scanning, on-chain passport NFTs, agent discovery directory, marketplace, audit trail and x402-paid scan packs.
 
 - **Live endpoint:** `https://agentbadge.xyz/mcp` (streamable HTTP)
