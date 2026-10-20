@@ -9,6 +9,8 @@ MCP (Model Context Protocol) server for **AgentBadge** — agent-readiness scann
 - **Smithery:** https://smithery.ai/servers/spread2009/agentbadge
 - **Docs:** https://agentbadge.xyz
 
+[![AgentBadge MCP server — grade A on mcprush](https://mcprush.com/badge/agentbadge-mcp/card.svg)](https://mcprush.com/to/agentbadge-mcp?ref=badge)
+
 ## Install
 
 ```bash
