@@ -27,10 +27,10 @@ export interface ToolListing {
   inputSchema: Record<string, unknown>;
 }
 
-const SERVER_INSTRUCTIONS =
+const serverInstructions = (toolCount: number) =>
   "AgentBadge MCP — agent-readiness scanning, on-chain passport NFTs (Hedera/EVM), " +
   "agent discovery directory, marketplace tools, audit trail and x402-paid scan packs. " +
-  "Docs: https://agentbadge.xyz — 52 tools across passport, discovery, marketplace, audit, bstock, circle-payments namespaces.";
+  `Docs: https://agentbadge.xyz — ${toolCount} tools across passport, discovery, marketplace, audit, bstock, circle-payments namespaces.`;
 
 // ─── NamespaceRegistry ───────────────────────────────────────────
 
@@ -40,7 +40,14 @@ export class NamespaceRegistry {
   private httpTransport: WebStandardStreamableHTTPServerTransport | null = null;
 
   constructor(private name: string, private version = "0.1.0") {
-    this.mcpServer = new McpServer({ name, version }, { instructions: SERVER_INSTRUCTIONS });
+    this.mcpServer = new McpServer({ name, version }, { instructions: serverInstructions(0) });
+  }
+
+  // Instructions embed the live tool count — refresh before each connect so
+  // clients never see the stale constructor-time value.
+  private syncInstructions(): void {
+    const server = this.mcpServer.server as unknown as { _instructions?: string };
+    server._instructions = serverInstructions(this.toolRegistry.size);
   }
 
   registerTool(
@@ -96,6 +103,7 @@ export class NamespaceRegistry {
 
   async startStdio(): Promise<void> {
     const transport = new StdioServerTransport();
+    this.syncInstructions();
     await this.mcpServer.connect(transport);
   }
 
@@ -106,6 +114,7 @@ export class NamespaceRegistry {
       sessionIdGenerator: () => crypto.randomUUID(),
     });
 
+    this.syncInstructions();
     this.mcpServer.connect(this.httpTransport);
     return this.httpTransport;
   }
@@ -127,7 +136,7 @@ export class NamespaceRegistry {
 
     this.mcpServer = new McpServer(
       { name: this.name, version: this.version },
-      { instructions: SERVER_INSTRUCTIONS },
+      { instructions: serverInstructions(this.toolRegistry.size) },
     );
 
     for (const [name, entry] of this.toolRegistry) {
