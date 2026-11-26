@@ -205,6 +205,7 @@ export function registerDirectoryTools(ns?: NamespaceRegistry): void {
     "Register an agent in the HCS directory. Requires a valid passport NFT (ownership verified via Mirror Node). Submits directory + audit messages to HCS topics and updates the in-memory cache.",
     registerAgentSchema,
     registerAgent,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -212,5 +213,6 @@ export function registerDirectoryTools(ns?: NamespaceRegistry): void {
     "Find agents in the directory, optionally filtered by capability. Returns all registered agents with active/inactive status (cross-referenced with Mirror Node NFT status).",
     findAgentsSchema,
     findAgents,
+    { exposure: "public", publicTier: "curated" },
   );
 }

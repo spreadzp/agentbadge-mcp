@@ -273,4 +273,62 @@ const result = await ns.handleHttpToolCall("verify_passport", {
 
 ---
 
+## Tool exposure model (contributor guide)
+
+Every registered tool has a **call-authorization tier** (`exposure`) and,
+for public tools, a **discovery tier** (`publicTier`).
+
+| `exposure` | Callable by | Discovery |
+|---|---|---|
+| `public` | anyone | only if `publicTier: "curated"` |
+| `authenticated` | `agb_` API key or verified DID signature | full list to authenticated callers |
+| `admin` | operator (`X-Admin-Key`) | `/mcp/ops` surface + admin view |
+
+`publicTier` (default `"extended"`) is a **list-projection only** —
+it changes who *sees* the tool, never who may call it. Extended-public
+tools stay callable anonymously; they just don't appear in the
+anonymous `tools/list` (kept ≤20 for capability-first discovery).
+
+**Deny-by-default:** `registerTool(name, schema, handler, desc)` without
+options registers as `admin` — a new tool is invisible until you
+classify it. That's intentional: forgetting exposure should fail safe,
+not leak.
+
+### Adding a tool
+
+```ts
+// Read/discover tool in the anon storefront:
+registry.registerTool("my_read_tool", schema, handler, "…", {
+  exposure: "public",
+  publicTier: "curated",
+});
+// Anonymous-capable but not advertised:
+{ exposure: "public" }                      // → extended
+// Needs identity (DID ownership or agb_ key):
+{ exposure: "authenticated" }
+// Operator-only (shows up on /mcp/ops automatically):
+{ exposure: "admin" }
+```
+
+### Rules that keep the surface safe
+
+- **No secret params in public schemas.** No `privateKey`,
+  `operatorKey`, `secret`… fields on `public`/`authenticated` tools —
+  enforced by `key-tools-policy` tests. Credentials come from env.
+- **Sign locally.** Agents hold their own Hedera keys: build + sign
+  with the SDK client-side, submit the signed payload. Key-accepting
+  endpoints return `410 Gone` (`keyEndpointGate`) — `*_with_key` MCP
+  tools are deprecated mirrors of that gate.
+- **Identity comes from auth, not args.** Never trust caller-supplied
+  `accountId`/DID fields (see `upgrade_tier`: arg rejected via
+  `z.never()`, identity resolved from the verified DID → Mirror Node).
+- Policy lives in `hackathon/server/src/server/lib/mcp-exposure.ts`
+  (tiers, filter, deny message); the tool→tier map is maintained in
+  `docs/EPICS/259-agent-surface-hardening/tool-exposure-map.md`.
+- Denied calls return a JSON-RPC error / HTTP 403 whose message tells
+  the agent *how* to gain access (register → `agb_` key, or DID
+  signature) — keep deny paths human/agent-readable.
+
+---
+
 Part of [AgentBadge](https://agentbadge.xyz) — support@agentbadge.xyz

@@ -100,6 +100,7 @@ export function registerFxDeltaTools(
       if (!d) return notFound(parsed.data.corridor);
       return ok(d);
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -161,6 +162,7 @@ export function registerFxDeltaTools(
       if (limit !== undefined) list = list.slice(0, limit);
       return ok(list);
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -184,6 +186,7 @@ export function registerFxDeltaTools(
         thin: d.thin,
       });
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -191,6 +194,7 @@ export function registerFxDeltaTools(
     "Get recent corridor events: alert crossings, source outages, thin-liquidity suppressions.",
     {},
     async () => ok(engine.getEvents()),
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -220,5 +224,6 @@ export function registerFxDeltaTools(
         events: engine.getEvents().length,
       });
     },
+    { exposure: "public" },
   );
 }

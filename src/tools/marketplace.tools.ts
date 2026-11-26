@@ -222,6 +222,7 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       deadline: z.number().optional().describe("Deadline as unix timestamp"),
     },
     postTaskHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -233,6 +234,7 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       offset: z.number().optional().describe("Pagination offset (default: 0)"),
     },
     listTasksHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -243,6 +245,7 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       claimerDid: z.string().min(1).describe("Claimer DID"),
     },
     claimTaskHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -255,6 +258,7 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       resultIpfs: z.string().optional().describe("IPFS CID for large results"),
     },
     deliverResultHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -265,6 +269,7 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       posterDid: z.string().min(1).describe("Poster DID (did:hcs:tokenId:serial)"),
     },
     preparePaymentHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -276,8 +281,9 @@ export function registerMarketplaceTools(ns?: NamespaceRegistry): void {
       txBytes: z.string().optional().describe("Base64-encoded frozen transaction bytes from prepare_payment"),
       publicKey: z.string().optional().describe("Signer's public key (DER-encoded hex)"),
       signature: z.string().optional().describe("Base64-encoded signature of the transaction bytes"),
-      posterPrivateKey: z.string().optional().describe("Poster's private key (legacy mode, not recommended)"),
+      posterPrivateKey: z.string().optional().describe("DEPRECATED — poster's private key, forwarded to the server. Only required while escrow release still needs it (scheduled transfer); prefer prepare_payment → local signing → txBytes+publicKey+signature."),
     },
     completeTaskHandler,
+    { exposure: "authenticated" },
   );
 }

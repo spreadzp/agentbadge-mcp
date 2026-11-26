@@ -13,7 +13,11 @@ export {
   NamespaceRegistry,
   type ToolResult,
   type ToolHandler,
+  type ToolCallContext,
   type ToolListing,
+  type ToolExposure,
+  type PublicTier,
+  type ToolRegistrationOptions,
 } from "./server";
 
 // Tool registration functions

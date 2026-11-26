@@ -301,7 +301,7 @@ export function registerA2ATools(ns?: NamespaceRegistry): void {
   const r = getRegistry(ns);
   r.registerTool(
     "send_message",
-    "Send a message to another agent via A2A messaging (server-key, deprecated). Use send_message_with_key for agent-signed messages.",
+    "Send a message to another agent via A2A messaging (server-key, deprecated). For agent-signed messages use POST /a2a/send-signed — the agent signs the prepared txBytes locally and the server never sees the private key.",
     {
       from: z.string().min(1).describe("Sender DID (did:hcs:tokenId:serial)"),
       to: z.string().min(1).describe("Recipient DID"),
@@ -312,11 +312,12 @@ export function registerA2ATools(ns?: NamespaceRegistry): void {
         .describe("Content type (default: text/plain)"),
     },
     sendMessageHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
     "send_message_with_key",
-    "Send a signed message to another agent via A2A messaging. Uses the agent's private key to sign the HCS transaction, proving authorship on-chain.",
+    "DEPRECATED — the agent's private key is sent to the server over the network (signed in-process, but the key still transits). Use POST /a2a/send-signed instead: prepare locally, sign locally, submit txBytes+signature. Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       from: z.string().min(1).describe("Sender DID (did:hcs:tokenId:serial)"),
       to: z.string().min(1).describe("Recipient DID"),
@@ -335,6 +336,7 @@ export function registerA2ATools(ns?: NamespaceRegistry): void {
         .describe("Sender Ed25519 private key (hex or DER)"),
     },
     sendMessageWithKeyHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
@@ -346,6 +348,7 @@ export function registerA2ATools(ns?: NamespaceRegistry): void {
       offset: z.number().optional().describe("Pagination offset (default: 0)"),
     },
     getInboxHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -361,5 +364,6 @@ export function registerA2ATools(ns?: NamespaceRegistry): void {
       offset: z.number().optional().describe("Pagination offset (default: 0)"),
     },
     getConversationHandler,
+    { exposure: "authenticated" },
   );
 }

@@ -133,6 +133,7 @@ export function registerDiscoveryTools(ns?: NamespaceRegistry): void {
     "Fetch the server's Agent Card (/.well-known/agent-card.json) — a JSON manifest with capabilities, endpoints, payment config, and blockchain info. Start here to discover what the server offers.",
     {},
     getAgentCardHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -153,6 +154,7 @@ export function registerDiscoveryTools(ns?: NamespaceRegistry): void {
         .describe("Maximum number of results (default: 20)"),
     },
     searchAgentsHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -160,6 +162,7 @@ export function registerDiscoveryTools(ns?: NamespaceRegistry): void {
     "Fetch the server's llms.txt — a plain-text API specification for LLMs. Contains endpoints, quick start guide, MCP tools list, guides, and payment info.",
     {},
     getServerInfoHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -167,6 +170,7 @@ export function registerDiscoveryTools(ns?: NamespaceRegistry): void {
     "Fetch the AI sitemap (/ai-sitemap.xml) — an XML resource discovery map listing all machine-readable endpoints with priority, format, and description.",
     {},
     getAiSitemapHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 }
 

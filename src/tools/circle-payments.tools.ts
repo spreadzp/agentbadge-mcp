@@ -188,6 +188,7 @@ export function registerCirclePayTools(ns?: NamespaceRegistry): void {
         ),
     },
     circlePayHandler,
+    { exposure: "authenticated" },
   );
 }
 
@@ -243,6 +244,7 @@ export function registerCircleWalletBalanceTools(
         ),
     },
     circleWalletBalanceHandler,
+    { exposure: "admin" },
   );
 }
 
@@ -300,6 +302,7 @@ export function registerPaymentStatusTools(ns?: NamespaceRegistry): void {
         ),
     },
     paymentStatusHandler,
+    { exposure: "authenticated" },
   );
 }
 
@@ -367,6 +370,7 @@ export function registerPaymentHistoryTools(ns?: NamespaceRegistry): void {
         .describe("Max entries to return (default 20)"),
     },
     paymentHistoryHandler,
+    { exposure: "admin" },
   );
 }
 
@@ -427,6 +431,7 @@ export function registerSupportedNetworksTools(
     "Get the Circle nanopayments capability matrix: accepts[] payment requirements (schemes, networks, assets, payTo) for a $0.001 reference price, plus per-flag capability state (gateway, arc, identity, escrow). Reflects live flag state. Read-only.",
     {},
     supportedNetworksHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 }
 
@@ -489,5 +494,6 @@ export function registerAgentIdentityTools(ns?: NamespaceRegistry): void {
         .describe("EVM address to look up (0x + 40 hex chars)"),
     },
     agentIdentityHandler,
+    { exposure: "public" },
   );
 }

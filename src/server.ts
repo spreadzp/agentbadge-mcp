@@ -10,21 +10,62 @@ export interface ToolResult {
   isError?: boolean;
 }
 
-export type ToolHandler = (args: Record<string, unknown>) => Promise<ToolResult>;
+/**
+ * Verified caller identity, resolved at the transport boundary
+ * (EPIC-259 SLICE-259-4). Passed to handlers that do subject-level
+ * authorization — e.g. ownership checks that must come from verified
+ * context, never from tool arguments.
+ */
+export interface ToolCallContext {
+  callerTier?: "anonymous" | "authenticated" | "admin";
+  /** DID verified by transport middleware (did:hcs:{tokenId}:{serial}). */
+  verifiedDid?: string;
+  /** agentId from an agb_ API key record. */
+  agentId?: string;
+}
+
+export type ToolHandler = (
+  args: Record<string, unknown>,
+  ctx?: ToolCallContext,
+) => Promise<ToolResult>;
 
 type ZodRawShape = Record<string, z.ZodType>;
+
+/**
+ * Exposure tier for a registered tool (D-259-Q2).
+ * - "public": callable anonymously (read/discover/onboard only)
+ * - "authenticated": requires a verified caller identity (agb_ key / DID)
+ * - "admin": operator surface only — never callable on public transports
+ * Default is "admin" (deny-by-default): unclassified tools are not exposed.
+ */
+export type ToolExposure = "public" | "authenticated" | "admin";
+
+export type PublicTier = "curated" | "extended";
+
+export interface ToolRegistrationOptions {
+  exposure?: ToolExposure;
+  /** Discovery projection for exposure:"public" tools (SLICE-259-7):
+   *  "curated" → listed to anonymous callers; anything else defaults
+   *  to "extended" — callable but absent from the anon tools/list.
+   *  Ignored for non-public exposures. */
+  publicTier?: PublicTier;
+}
 
 interface ToolEntry {
   name: string;
   description: string;
   schema: z.ZodObject<ZodRawShape>;
   handler: ToolHandler;
+  exposure: ToolExposure;
+  publicTier: PublicTier;
 }
 
 export interface ToolListing {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  exposure: ToolExposure;
+  publicTier: PublicTier;
 }
 
 const serverInstructions = (toolCount: number) =>
@@ -55,9 +96,24 @@ export class NamespaceRegistry {
     description: string,
     inputSchema: ZodRawShape,
     handler: ToolHandler,
+    options?: ToolRegistrationOptions,
   ): void {
     const schema = z.object(inputSchema);
-    this.toolRegistry.set(name, { name, description, schema, handler });
+    const exposure = options?.exposure ?? "admin";
+    // publicTier is curated only when explicitly marked; deny-by-default
+    // spirit — a new public tool does not enter the anon catalog silently.
+    const publicTier: PublicTier =
+      exposure === "public" && options?.publicTier === "curated"
+        ? "curated"
+        : "extended";
+    this.toolRegistry.set(name, {
+      name,
+      description,
+      schema,
+      handler,
+      exposure,
+      publicTier,
+    });
     try {
       this.mcpServer.registerTool(
         name,
@@ -70,16 +126,21 @@ export class NamespaceRegistry {
   }
 
   listTools(): ToolListing[] {
-    return Array.from(this.toolRegistry.values()).map(({ name, description, schema }) => ({
-      name,
-      description,
-      inputSchema: zodToJsonSchema(schema.shape),
-    }));
+    return Array.from(this.toolRegistry.values()).map(
+      ({ name, description, schema, exposure, publicTier }) => ({
+        name,
+        description,
+        inputSchema: zodToJsonSchema(schema.shape),
+        exposure,
+        publicTier,
+      }),
+    );
   }
 
   async handleHttpToolCall(
     toolName: string,
     args: Record<string, unknown>,
+    ctx?: ToolCallContext,
   ): Promise<ToolResult> {
     const tool = this.toolRegistry.get(toolName);
     if (!tool) {
@@ -91,7 +152,7 @@ export class NamespaceRegistry {
 
     try {
       const parsed = tool.schema.parse(args);
-      return await tool.handler(parsed as Record<string, unknown>);
+      return await tool.handler(parsed as Record<string, unknown>, ctx);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Invalid arguments";
       return {
@@ -201,8 +262,9 @@ export function registerTool(
   description: string,
   inputSchema: ZodRawShape,
   handler: ToolHandler,
+  options?: ToolRegistrationOptions,
 ): void {
-  defaultNamespace.registerTool(name, description, inputSchema, handler);
+  defaultNamespace.registerTool(name, description, inputSchema, handler, options);
 }
 
 export function listTools(): ToolListing[] {
@@ -212,8 +274,9 @@ export function listTools(): ToolListing[] {
 export async function handleHttpToolCall(
   toolName: string,
   args: Record<string, unknown>,
+  ctx?: ToolCallContext,
 ): Promise<ToolResult> {
-  return defaultNamespace.handleHttpToolCall(toolName, args);
+  return defaultNamespace.handleHttpToolCall(toolName, args, ctx);
 }
 
 export async function startStdio(): Promise<void> {

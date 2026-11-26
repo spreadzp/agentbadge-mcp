@@ -73,6 +73,7 @@ export function registerBstockTelegramTools(
         `Subscribed: @${sub.username} (chat ${sub.chatId}) will receive bStock delta alerts.`,
       );
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -87,6 +88,7 @@ export function registerBstockTelegramTools(
         removed ? "Unsubscribed from bStock alerts." : "not subscribed",
       );
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -100,5 +102,6 @@ export function registerBstockTelegramTools(
       if (!sub) return text("not subscribed");
       return text(`subscribed: @${sub.username} (chat ${sub.chatId})`);
     },
+    { exposure: "authenticated" },
   );
 }

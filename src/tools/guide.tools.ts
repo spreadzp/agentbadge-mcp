@@ -105,6 +105,7 @@ export function registerGuideTools(ns?: NamespaceRegistry): void {
         .describe('Guide name: "agent", "market", "medical", or "signing"'),
     },
     getGuideHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -112,5 +113,6 @@ export function registerGuideTools(ns?: NamespaceRegistry): void {
     "List available skill guides with names and descriptions.",
     {},
     listGuidesHandler,
+    { exposure: "public", publicTier: "curated" },
   );
 }

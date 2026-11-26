@@ -151,6 +151,7 @@ export function registerEscrowTools(ns?: NamespaceRegistry): void {
       taskId: z.string().min(1).describe("Task ID to check escrow status for"),
     },
     getEscrowStatusHandler,
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -161,6 +162,7 @@ export function registerEscrowTools(ns?: NamespaceRegistry): void {
       posterDid: z.string().min(1).describe("Poster DID (did:hcs:tokenId:serial)"),
     },
     cancelEscrowHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -172,6 +174,7 @@ export function registerEscrowTools(ns?: NamespaceRegistry): void {
       newPriceHbar: z.number().positive().describe("New reward amount in HBAR (must be greater than current)"),
     },
     increaseRewardHandler,
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -181,5 +184,6 @@ export function registerEscrowTools(ns?: NamespaceRegistry): void {
       taskId: z.string().min(1).describe("Task ID to run verification on"),
     },
     verifyResultHandler,
+    { exposure: "authenticated" },
   );
 }

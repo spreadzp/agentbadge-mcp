@@ -62,6 +62,7 @@ export function registerFxDeltaTelegramTools(
         `Subscribed: @${sub.username} (chat ${sub.chatId}) will receive FX delta alerts.`,
       );
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -76,6 +77,7 @@ export function registerFxDeltaTelegramTools(
         removed ? "Unsubscribed from FX delta alerts." : "not subscribed",
       );
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -89,5 +91,6 @@ export function registerFxDeltaTelegramTools(
       if (!sub) return text("not subscribed");
       return text(`subscribed: @${sub.username} (chat ${sub.chatId})`);
     },
+    { exposure: "authenticated" },
   );
 }

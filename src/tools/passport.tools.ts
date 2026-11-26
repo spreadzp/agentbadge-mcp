@@ -21,7 +21,11 @@ import {
   revokePassport,
   uploadImage,
 } from "@agentbadge/passport";
-import type { Capability } from "@agentbadge/hedera-core";
+import {
+  type Capability,
+  didToAccountId,
+  extractTokenAndSerial,
+} from "@agentbadge/hedera-core";
 
 /** Convert a service error to an MCP error response. */
 function serviceErrorToMcpError(err: unknown): ToolResult {
@@ -71,7 +75,13 @@ const upgradeTierSchema = {
   tokenId: z.string().min(1).describe("HTS passport token ID"),
   serial: z.number().int().positive().describe("NFT serial number"),
   newTier: tierSchema.describe("New tier to upgrade to"),
-  accountId: z.string().min(1).describe("Requester's Hedera account ID (must own the passport)"),
+  // EPIC-259 (SLICE-259-4): identity comes from the verified DID context,
+  // never from arguments — submitting accountId is a hard error so agents
+  // unlearn the old (spoofable) field.
+  accountId: z
+    .never()
+    .optional()
+    .describe("REMOVED — do not send. Caller identity is taken from the verified DID signature context."),
 };
 
 /** Input schema for revoke_passport. */
@@ -105,6 +115,7 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -124,6 +135,7 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -141,6 +153,7 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -158,6 +171,7 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
@@ -179,25 +193,59 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "public", publicTier: "curated" },
   );
 
   r.registerTool(
     "upgrade_tier",
-    "Upgrade a passport to a higher tier. Updates NFT metadata and submits HCS audit message.",
+    "Upgrade a passport to a higher tier. Owner path: verified DID signature matching did:hcs:{tokenId}:{serial}; operator path: admin access. Updates NFT metadata and submits HCS audit message.",
     upgradeTierSchema,
-    async (args) => {
+    async (args, ctx) => {
       try {
-        const result = await upgradeTier(
-          args.tokenId as string,
-          args.serial as number,
-          args.newTier as "bronze" | "silver" | "gold" | "platinum",
-          args.accountId as string,
-        );
+        const tokenId = args.tokenId as string;
+        const serial = args.serial as number;
+        const newTier = args.newTier as "bronze" | "silver" | "gold" | "platinum";
+
+        // EPIC-259 (SLICE-259-4): requester identity comes from verified
+        // context — owner DID signature or admin — never from args.
+        let accountId: string | null;
+        if (ctx?.callerTier === "admin") {
+          const info = await getPassportInfo(tokenId, serial);
+          if (!info) {
+            return { isError: true, content: [{ type: "text", text: "Passport not found" }] };
+          }
+          accountId = info.owner;
+        } else {
+          const did = ctx?.verifiedDid;
+          if (!did) {
+            return {
+              isError: true,
+              content: [{ type: "text", text: `upgrade_tier requires a verified DID signature matching did:hcs:${tokenId}:${serial} (agb_ keys cannot prove Hedera passport ownership) or admin access` }],
+            };
+          }
+          const parsed = extractTokenAndSerial(did);
+          if (!parsed || parsed.tokenId !== tokenId || parsed.serial !== serial) {
+            return {
+              isError: true,
+              content: [{ type: "text", text: "Verified DID does not match the target passport" }],
+            };
+          }
+          accountId = await didToAccountId(did);
+          if (!accountId) {
+            return {
+              isError: true,
+              content: [{ type: "text", text: "Verified DID does not resolve to a Hedera account" }],
+            };
+          }
+        }
+
+        const result = await upgradeTier(tokenId, serial, newTier, accountId);
         return ok(result);
       } catch (e) {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "authenticated" },
   );
 
   r.registerTool(
@@ -216,5 +264,6 @@ export function registerPassportTools(ns?: NamespaceRegistry): void {
         return serviceErrorToMcpError(e);
       }
     },
+    { exposure: "admin" },
   );
 }

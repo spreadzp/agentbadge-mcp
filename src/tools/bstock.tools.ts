@@ -100,6 +100,7 @@ export function registerBstockTools(
       if (!d) return notFound(parsed.data.symbol);
       return ok(d);
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -163,6 +164,7 @@ export function registerBstockTools(
       if (limit !== undefined) list = list.slice(0, limit);
       return ok(list);
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -184,6 +186,7 @@ export function registerBstockTools(
         stale: d.stale,
       });
     },
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -191,6 +194,7 @@ export function registerBstockTools(
     "Get recent market events: trading halts/resumes, tradability changes (NONE/OFFMARKET), calendar.",
     {},
     async () => ok(engine.getEvents()),
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -218,5 +222,6 @@ export function registerBstockTools(
         events: engine.getEvents().length,
       });
     },
+    { exposure: "public" },
   );
 }

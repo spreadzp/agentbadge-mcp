@@ -179,28 +179,30 @@ export function registerSigningTools(ns?: NamespaceRegistry): void {
   const r = getRegistry(ns);
   r.registerTool(
     "sign_transaction",
-    "Sign frozen Hedera transaction bytes with a private key. Returns { signature, publicKey } where signature is a JSON-encoded array of base64 strings. Pure local operation — no network calls. Use after prepare_payment to sign the payment transaction.",
+    "DEPRECATED — signs with a private key sent to the server (the key transits the network; this tool proxies to /market/sign). Agents must sign locally with their own SDK instead, then submit txBytes+publicKey+signature to the signature-based endpoints (e.g. prepare_payment → local sign → complete_task). Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       txBytes: z.string().min(1).describe("Base64-encoded frozen transaction bytes from prepare_payment"),
       privateKey: z.string().min(1).describe("Private key (DER-encoded hex like 302e... or 0x-prefixed ECDSA hex)"),
     },
     signTransactionHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
     "complete_task_with_key",
-    "Complete a task with a single call using poster's private key. Internally: prepare_payment → sign → submit to Hedera → complete task. Returns { taskId, paymentTxId, completedAt }. Task must be in 'delivered' status. Convenience tool — eliminates 3-step round-trip.",
+    "DEPRECATED — sends poster's private key to the server (key transits the network). Use prepare_payment → local signing → complete_task with txBytes+publicKey+signature instead. Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       taskId: z.string().min(1).describe("Task ID to complete"),
       posterDid: z.string().min(1).describe("Poster DID (did:hcs:tokenId:serial)"),
       posterPrivateKey: z.string().min(1).describe("Poster's private key (DER hex or 0x-prefixed ECDSA hex)"),
     },
     completeTaskWithKeyHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
     "post_task_with_key",
-    "Post a task to the marketplace with agent-signed HCS message. Internally: prepare HCS transaction with agent as payer → sign with agent's key → submit to Hedera. Returns { txId, taskId, timestamp }. HCS transaction ID uses agent's account, proving authorship.",
+    "DEPRECATED — sends poster's private key to the server (key transits the network). Post via DID-signed POST /market/tasks (X-AgentBadge-* signature headers) instead. Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       posterDid: z.string().min(1).describe("Poster DID (did:hcs:tokenId:serial)"),
       title: z.string().min(1).describe("Task title"),
@@ -211,22 +213,24 @@ export function registerSigningTools(ns?: NamespaceRegistry): void {
       posterPrivateKey: z.string().min(1).describe("Poster's private key (DER hex or 0x-prefixed ECDSA hex)"),
     },
     postTaskWithKeyHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
     "claim_task_with_key",
-    "Claim a task with agent-signed HCS message. Internally: prepare HCS transaction with claimer as payer → sign with claimer's key → submit to Hedera. Returns { taskId, txId, timestamp }. HCS transaction ID uses claimer's account, proving claim authorship. Task must be in 'posted' status.",
+    "DEPRECATED — sends claimer's private key to the server (key transits the network). Claim via DID-signed POST /market/tasks/:id/claim (X-AgentBadge-* signature headers) instead. Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       taskId: z.string().min(1).describe("Task ID to claim"),
       claimerDid: z.string().min(1).describe("Claimer DID (did:hcs:tokenId:serial)"),
       claimerPrivateKey: z.string().min(1).describe("Claimer's private key (DER hex or 0x-prefixed ECDSA hex)"),
     },
     claimTaskWithKeyHandler,
+    { exposure: "admin" },
   );
 
   r.registerTool(
     "deliver_result_with_key",
-    "Deliver task results with agent-signed HCS message. Internally: prepare HCS transaction with claimer as payer → sign with claimer's key → submit to Hedera. Returns { taskId, txId, timestamp }. Task must be in 'claimed' status and caller must be the claimer. Provide either resultBody (max 4KB) or resultIpfs.",
+    "DEPRECATED — sends claimer's private key to the server (key transits the network). Deliver via DID-signed POST /market/tasks/:id/deliver (X-AgentBadge-* signature headers) instead. Kept for operator/demo use only (ALLOW_KEY_ENDPOINTS).",
     {
       taskId: z.string().min(1).describe("Task ID to deliver results for"),
       claimerDid: z.string().min(1).describe("Claimer DID (did:hcs:tokenId:serial)"),
@@ -235,5 +239,6 @@ export function registerSigningTools(ns?: NamespaceRegistry): void {
       claimerPrivateKey: z.string().min(1).describe("Claimer's private key (DER hex or 0x-prefixed ECDSA hex)"),
     },
     deliverResultWithKeyHandler,
+    { exposure: "admin" },
   );
 }

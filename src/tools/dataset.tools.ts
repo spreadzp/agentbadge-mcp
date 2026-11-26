@@ -32,14 +32,6 @@ function validationError(message: string): ToolResult {
 
 const downloadDatasetSchema = z.object({
   fileId: z.string().min(1).describe("Hedera File ID (e.g., 0.0.12345)"),
-  operatorId: z
-    .string()
-    .optional()
-    .describe("Hedera operator account ID (defaults to env OPERATOR_ID)"),
-  operatorKey: z
-    .string()
-    .optional()
-    .describe("Hedera operator private key (DER hex, defaults to env OPERATOR_KEY)"),
 });
 
 export async function downloadDatasetHandler(
@@ -48,12 +40,14 @@ export async function downloadDatasetHandler(
   const parsed = downloadDatasetSchema.safeParse(args);
   if (!parsed.success) return validationError(parsed.error.message);
 
-  const { fileId, operatorId, operatorKey } = parsed.data;
-  const opId = operatorId ?? process.env.OPERATOR_ID;
-  const opKey = operatorKey ?? process.env.OPERATOR_KEY;
+  const { fileId } = parsed.data;
+  // EPIC-259-6: operator credentials are env-only — a public tool must
+  // never accept a private key as an argument.
+  const opId = process.env.OPERATOR_ID;
+  const opKey = process.env.OPERATOR_KEY;
 
   if (!opId || !opKey) {
-    return error("Missing operator credentials: set OPERATOR_ID and OPERATOR_KEY or pass operatorId/operatorKey");
+    return error("Missing operator credentials: set OPERATOR_ID and OPERATOR_KEY");
   }
 
   try {
@@ -167,16 +161,9 @@ export function registerDatasetTools(ns?: NamespaceRegistry): void {
     "Download a CSV dataset from Hedera File Service (HFS) by fileId. Returns the raw CSV content as a string.",
     {
       fileId: z.string().min(1).describe("Hedera File ID (e.g., 0.0.12345)"),
-      operatorId: z
-        .string()
-        .optional()
-        .describe("Hedera operator account ID (defaults to env OPERATOR_ID)"),
-      operatorKey: z
-        .string()
-        .optional()
-        .describe("Hedera operator private key (DER hex, defaults to env OPERATOR_KEY)"),
     },
     downloadDatasetHandler,
+    { exposure: "public" },
   );
 
   r.registerTool(
@@ -200,5 +187,6 @@ export function registerDatasetTools(ns?: NamespaceRegistry): void {
         .describe("Pinata API secret (or use env IPFS_API_SECRET)"),
     },
     uploadResultHandler,
+    { exposure: "authenticated" },
   );
 }

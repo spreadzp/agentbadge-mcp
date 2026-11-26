@@ -77,6 +77,7 @@ export function registerAuditCatalogTools(ns?: NamespaceRegistry): void {
         content: [{ type: "text", text: JSON.stringify({ events }) }],
       };
     },
+    { exposure: "public", publicTier: "curated" },
   );
 
   // get_tier_requirements tool
@@ -90,5 +91,6 @@ export function registerAuditCatalogTools(ns?: NamespaceRegistry): void {
         content: [{ type: "text", text: JSON.stringify({ tiers }) }],
       };
     },
+    { exposure: "public", publicTier: "curated" },
   );
 }
